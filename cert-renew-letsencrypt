@@ -1,0 +1,9 @@
+#!/bin/bash
+domain="tourdomaine"
+rawLastDay=`openssl x509 -noout -dates -in /etc/letsencrypt/live/"$domain"/cert.pem | grep notAfter | sed -e "s/^notAfter=//" -e ""| sed -e "s/GMT//" -e "" | awk -F' ' '{print $1 (NF>1? FS $2 : "") " " $4}'`
+daysLeft=`echo $(( ($(date --date="$rawLastDay" +%s) - $(date +%s) )/(60*60*24) ))`
+if (( "$daysLeft" > 5 )); then
+        echo ils restent "$daysLeft" jusqu'a l'expiration du certificat!
+else
+/etc/apache2/certbot-auto renew --rsa-key-size 4096 --force-renewal
+fi
